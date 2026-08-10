@@ -1,9 +1,19 @@
 # radar_convocatorias
 
 Watches configured "convocatorias" (grant/funding call) listing pages and
-emails a digest whenever a new one shows up. By default it tracks two
-Gobierno de Aragón grant-listing pages (see `sources.json`); edit that file
-to add, remove, or retune sources — no code changes needed.
+emails a digest whenever a new one shows up. `sources.json` ships with seven
+sources by default — edit that file to add, remove, or retune sources; no
+code changes needed.
+
+| Source | Scope |
+|---|---|
+| Gobierno de Aragón — Subvenciones, premios y otras convocatorias | Regional (Aragón) |
+| Gobierno de Aragón — Ayudas y subvenciones (listado de trámites) | Regional (Aragón) |
+| Universidad de Zaragoza — Convocatorias de investigación | Unizar (internal) |
+| Agencia Estatal de Investigación (AEI) — Buscador de convocatorias | National (Ministerio) |
+| BOE — Últimas ayudas y subvenciones publicadas | National (Ministerio) |
+| Unión Europea — EU Funding & Tenders Portal (Calls for proposals) | EU |
+| AECID — Subvenciones | Cooperación al desarrollo |
 
 ## How it works
 
@@ -19,11 +29,28 @@ to add, remove, or retune sources — no code changes needed.
 
 > **Note:** the default selectors in `sources.json` are a best-effort
 > starting point — they were written and unit-tested against a local
-> fixture, not against the live `aragon.es` pages (this environment could
-> not reach them to inspect the real markup). Run with `--dry-run -v` after
-> deploying and check the `INFO`/`WARNING` log lines; if a source logs
-> "no configured selector matched", open the page in a browser, inspect the
-> listing markup, and add/adjust a selector in `sources.json`.
+> fixture, not against the live pages (this environment's network egress is
+> blocked to `aragon.es`, `unizar.es`, `aei.gob.es`, `boe.es`, `ec.europa.eu`
+> and `aecid.es`, so none of it could be inspected directly). Run with
+> `--dry-run -v` after deploying and check the `INFO`/`WARNING` log lines;
+> if a source logs "no configured selector matched", open the page in a
+> browser, inspect the listing markup, and add/adjust a selector in
+> `sources.json` (each source also carries an optional `"notes"` field with
+> known caveats — the script ignores it, it's just a note to whoever edits
+> the file).
+>
+> Two sources need special attention because they're likely **JavaScript
+> single-page apps** whose content this scraper (plain HTTP GET +
+> BeautifulSoup, no JS execution) probably can't see in the static HTML:
+> - **AEI — Buscador de convocatorias**: may render results via an API call;
+>   if `--dry-run` finds nothing, look for a plainer static listing page on
+>   `aei.gob.es` to point at instead.
+> - **EU Funding & Tenders Portal**: this is confirmed to be an Angular app
+>   that loads calls via JS/API after the initial page load — the static
+>   scraper will almost certainly find 0 items here. It's included as a
+>   placeholder; making it work for real needs either a headless-browser
+>   fetch (e.g. Playwright) or the portal's public search API, neither of
+>   which this script currently implements.
 
 ## Deploying on the BeeStation (or any Linux box with SSH + cron)
 
