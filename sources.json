@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Gobierno de Aragón - Subvenciones, premios y otras convocatorias",
+    "url": "https://www.aragon.es/-/subvenciones-premios-y-otras-convocatorias",
+    "link_base": "https://www.aragon.es",
+    "min_items": 5,
+    "item_selectors": [
+      "main a[href*='/-/']",
+      "#content a[href*='/-/']",
+      "a[href*='/-/']",
+      "main a[href]"
+    ]
+  },
+  {
+    "name": "Gobierno de Aragón - Ayudas y subvenciones (listado de trámites)",
+    "url": "https://www.aragon.es/tramites/ayudas-subvenciones-becas-premios/ayudas-subvenciones",
+    "link_base": "https://www.aragon.es",
+    "min_items": 5,
+    "item_selectors": [
+      "main a[href*='/tramitador/']",
+      "#content a[href*='/tramitador/']",
+      "a[href*='/tramitador/']",
+      "main a[href]"
+    ]
+  }
+]
