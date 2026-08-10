@@ -1,0 +1,84 @@
+[
+  {
+    "name": "Gobierno de Aragón - Subvenciones, premios y otras convocatorias",
+    "url": "https://www.aragon.es/-/subvenciones-premios-y-otras-convocatorias",
+    "link_base": "https://www.aragon.es",
+    "min_items": 5,
+    "item_selectors": [
+      "main a[href*='/-/']",
+      "#content a[href*='/-/']",
+      "a[href*='/-/']",
+      "main a[href]"
+    ]
+  },
+  {
+    "name": "Gobierno de Aragón - Ayudas y subvenciones (listado de trámites)",
+    "url": "https://www.aragon.es/tramites/ayudas-subvenciones-becas-premios/ayudas-subvenciones",
+    "link_base": "https://www.aragon.es",
+    "min_items": 5,
+    "item_selectors": [
+      "main a[href*='/tramitador/']",
+      "#content a[href*='/tramitador/']",
+      "a[href*='/tramitador/']",
+      "main a[href]"
+    ]
+  },
+  {
+    "name": "Universidad de Zaragoza - Convocatorias de investigación",
+    "url": "https://investigacion.unizar.es/convocatorias",
+    "link_base": "https://investigacion.unizar.es",
+    "min_items": 3,
+    "item_selectors": [
+      "main .view-content a[href]",
+      "#content a[href*='/convocatoria']",
+      "main a[href*='/convocatoria']",
+      "main a[href]"
+    ],
+    "notes": "Verify with --dry-run -v after deploying; Unizar's site structure was not reachable to confirm selectors during development."
+  },
+  {
+    "name": "Agencia Estatal de Investigación (AEI) - Buscador de convocatorias",
+    "url": "https://www.aei.gob.es/convocatorias/buscador-convocatorias",
+    "link_base": "https://www.aei.gob.es",
+    "min_items": 3,
+    "item_selectors": [
+      "main a[href*='/convocatorias/']",
+      "#content a[href*='/convocatorias/']",
+      "main a[href]"
+    ],
+    "notes": "This 'buscador' may load results via JavaScript/API instead of static HTML, in which case this scraper will find nothing here (it does not execute JS). Check the --dry-run -v log; if it reports 'no selector matched', either replace this URL with a static listing page on aei.gob.es, or this source needs a headless-browser fetcher."
+  },
+  {
+    "name": "BOE - Últimas ayudas y subvenciones publicadas",
+    "url": "https://www.boe.es/buscar/ayudas.php",
+    "link_base": "https://www.boe.es",
+    "min_items": 5,
+    "item_selectors": [
+      "a[href*='/diario_boe/txt.php']",
+      "a[href*='BOE-A-']",
+      "main a[href]"
+    ]
+  },
+  {
+    "name": "Unión Europea - EU Funding & Tenders Portal (Calls for proposals)",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/calls-for-proposals",
+    "link_base": "https://ec.europa.eu",
+    "min_items": 3,
+    "item_selectors": [
+      "a[href*='/opportunities/topic-details/']",
+      "main a[href]"
+    ],
+    "notes": "The Funding & Tenders Portal is an Angular single-page app: its call listing is fetched via JavaScript/API calls after the page loads, not present in the initial static HTML. This static scraper will most likely find nothing here. Treat this source as a placeholder that needs a headless-browser fetcher (e.g. Playwright) or the portal's public search API to actually work."
+  },
+  {
+    "name": "AECID - Subvenciones",
+    "url": "https://www.aecid.es/subvenciones",
+    "link_base": "https://www.aecid.es",
+    "min_items": 3,
+    "item_selectors": [
+      "main a[href*='/w/']",
+      "#content a[href*='/w/']",
+      "main a[href]"
+    ]
+  }
+]
