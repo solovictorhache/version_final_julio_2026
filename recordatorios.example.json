@@ -1,0 +1,22 @@
+[
+  {
+    "id": "a1b2c3d4",
+    "title": "Enviar email de seguimiento al IP del proyecto",
+    "date": "2026-08-20",
+    "type": "email",
+    "time": null,
+    "notify_days_before": [7, 1, 0],
+    "notes": "Adjuntar el borrador de memoria actualizado.",
+    "done": false
+  },
+  {
+    "id": "e5f6a7b8",
+    "title": "Reunión de seguimiento del grupo de investigación",
+    "date": "2026-08-25",
+    "type": "reunion",
+    "time": "10:00",
+    "notify_days_before": [1, 0],
+    "notes": "",
+    "done": false
+  }
+]
