@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
 state.json
+recordatorios.json
+recordatorios_state.json
 *.log
 .venv/

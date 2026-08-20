@@ -1,4 +1,17 @@
-# radar_convocatorias
+# Automatizaciones BeeStation
+
+Two independent scripts, meant to run from cron on the BeeStation:
+
+- **`radar_convocatorias.py`** — watches grant/funding-call listing pages
+  and emails new ones.
+- **`recordatorios.py`** — a personal reminder tracker (meetings, events,
+  "I need to send this email") that emails a digest when something is due,
+  with configurable advance notice and daily nagging on overdue items.
+
+Both share the same "only mark as sent after a successful email" pattern,
+so a failed send is retried on the next run instead of silently lost.
+
+## radar_convocatorias.py
 
 Watches configured "convocatorias" (grant/funding call) listing pages and
 emails a digest whenever a new one shows up. `sources.json` ships with seven
@@ -52,6 +65,63 @@ code changes needed.
 >   fetch (e.g. Playwright) or the portal's public search API, neither of
 >   which this script currently implements.
 
+## recordatorios.py
+
+A personal reminder tracker. Reminders live in `recordatorios.json` (start
+from `recordatorios.example.json`, or create entries with `--add`). Each
+reminder has a due date and a list of "notify me N days before" offsets
+(e.g. `[7, 1, 0]` = a week before, a day before, and the day itself).
+
+- Running with no flags checks today's date against every pending reminder
+  and emails a digest of what's due — grouped into **overdue** (nags every
+  run until you mark it done) and **próximos** (each advance offset fires
+  once, tracked in `recordatorios_state.json`).
+- `recordatorios.json` and `recordatorios_state.json` are gitignored (they
+  hold your personal data) — only the `.example.json` template is tracked.
+
+### Managing reminders
+
+```bash
+# Add one
+python3 recordatorios.py --add --title "Enviar email de seguimiento" \
+    --date 2026-08-20 --type email --notify-days 7,1,0 \
+    --notes "Adjuntar el borrador de memoria"
+
+# List everything (pending + done), with days remaining/overdue
+python3 recordatorios.py --list
+
+# Mark one done (stops it from nagging)
+python3 recordatorios.py --done <id>
+
+# See what would be emailed today, without sending or touching state
+python3 recordatorios.py --dry-run -v
+```
+
+`--type` is free-form labeling (`evento`, `reunion`, `email`, `tarea` are
+the ones used above) — it's only used to prefix the reminder in the email,
+so any short word works.
+
+### Environment variables
+
+| Variable                       | Required | Purpose                        |
+|----------------------------------|:--------:|-----------------------------------|
+| `RECORDATORIOS_SMTP_HOST`        | yes      | SMTP server hostname               |
+| `RECORDATORIOS_SMTP_PORT`        | yes      | SMTP port (587 for STARTTLS)       |
+| `RECORDATORIOS_SMTP_USER`        | yes      | SMTP auth username                 |
+| `RECORDATORIOS_SMTP_PASSWORD`    | yes      | SMTP auth password / app password  |
+| `RECORDATORIOS_EMAIL_FROM`       | yes      | `From:` address                    |
+| `RECORDATORIOS_EMAIL_TO`         | yes      | Comma-separated recipient list      |
+| `RECORDATORIOS_FILE`             | no       | Override path to `recordatorios.json` |
+| `RECORDATORIOS_STATE_FILE`       | no       | Override path to `recordatorios_state.json` |
+| `RECORDATORIOS_LOG_FILE`         | no       | Also log to this file              |
+
+These can reuse the same Gmail account/app password as `RADAR_SMTP_*` —
+just repeat the same values under the `RECORDATORIOS_` names in the cron
+line below.
+
+No extra dependencies needed — `recordatorios.py` only uses the Python
+standard library.
+
 ## Deploying on the BeeStation (or any Linux box with SSH + cron)
 
 ```bash
@@ -82,13 +152,17 @@ python3 ~/radar/radar_convocatorias.py --reset-state -v
 # 5. If nothing arrives, first check what the scraper actually saw:
 python3 ~/radar/radar_convocatorias.py --dry-run -v
 
-# 6. Once step 4 delivered an email, schedule it weekly (Monday 8:00)
+# 6. Once step 4 delivered an email, schedule radar_convocatorias.py weekly
+#    (Monday 8:00), and recordatorios.py daily (8:00) so due reminders/
+#    nags go out every morning.
 crontab -e
-# Add this line at the end of the file that opens (adjust the path to
+# Add these lines at the end of the file that opens (adjust the path to
 # match where you cloned/copied the repo, and use an absolute path):
 0 8 * * 1 RADAR_SMTP_HOST=smtp.gmail.com RADAR_SMTP_PORT=587 RADAR_SMTP_USER=tu_cuenta@gmail.com RADAR_SMTP_PASSWORD=xxxxxxxxxxxxxxxx RADAR_EMAIL_FROM=tu_cuenta@gmail.com RADAR_EMAIL_TO=victorhugo.perez@unizar.es RADAR_LOG_FILE=/home/solovictorhache/radar/radar.log python3 /home/solovictorhache/radar/radar_convocatorias.py
 
-# 7. Verify the cron entry was saved
+0 8 * * * RECORDATORIOS_SMTP_HOST=smtp.gmail.com RECORDATORIOS_SMTP_PORT=587 RECORDATORIOS_SMTP_USER=tu_cuenta@gmail.com RECORDATORIOS_SMTP_PASSWORD=xxxxxxxxxxxxxxxx RECORDATORIOS_EMAIL_FROM=tu_cuenta@gmail.com RECORDATORIOS_EMAIL_TO=victorhugo.perez@unizar.es RECORDATORIOS_LOG_FILE=/home/solovictorhache/radar/recordatorios.log python3 /home/solovictorhache/radar/recordatorios.py
+
+# 7. Verify the cron entries were saved
 crontab -l
 ```
 
